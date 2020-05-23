@@ -8,7 +8,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 cred = credentials.Certificate(r"assets/samhar-21151-firebase-adminsdk-w4vxj-3d5cbb7790.json")
 firebase_admin.initialize_app(cred)
-path=r"assets/Train_pincode.xlsx" # Change accordingly
+path=r"assets/Pincode.xlsx" # Change accordingly
 def amIHome(myLoc,refLoc):
   (lat1, lon1, lat2, lon2)=(myLoc[0],myLoc[1], refLoc[0],refLoc[1])
   p = 0.017453292519943295

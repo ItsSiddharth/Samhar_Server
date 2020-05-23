@@ -12,13 +12,20 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import make_pipeline
 import json
 from sklearn.model_selection import train_test_split
-from flask import Flask, request, jsonify
+from flask import Flask, flash, request, redirect, url_for, jsonify, render_template
+from werkzeug.utils import secure_filename
 from google.cloud.exceptions import NotFound
 import firebase_admin
 from firebase_admin import credentials
 from checkpost import *
 import os
 
+
+UPLOAD_FOLDER = 'assets'
+ALLOWED_EXTENSIONS = {'xlsx'}
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 
@@ -117,11 +124,15 @@ def addHomeStatus(email, myLoc):
   addIfHome(email, check_if_home)
 
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 app = Flask("__app__")
 
 @app.route('/main', methods=['GET'])
 def main():
-    (X,names, mobs, email)=data_preprocessor(r"assets/Train_Mobile.xlsx")
+    (X,names, mobs, email)=data_preprocessor(r"assets/Main.xlsx")
     [ret1, retjson]=inference(X,names, mobs, email, r"assets/model_sar.pkl")
     add_risk_score(ret1)
     return retjson
@@ -131,6 +142,26 @@ def checkpost(email, lat, long):
     print(email, lat, long)
     addHomeStatus(email, [float(lat), float(long)])
     return jsonify(1)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return render_template('upload.html')
+    return render_template('index.html')
 
 
 if __name__ == "__main__":
