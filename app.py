@@ -32,7 +32,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def data_preprocessor(path):
     # Reading data from file
     dat=pd.read_excel(path)
-    dat=dat.iloc[:500,]
+    dat=dat.iloc[:20,]
     # remove unnecessary cols
     names=dat['Aadhaar'].values
     mobs=dat['Mobile']
@@ -114,7 +114,7 @@ def add_risk_score(ret1):
         doc_ref=db.collection(email).document('doc')  
         if(doc_ref!=None):
           doc_ref.update({u'Status':y_lab})
-      except NotFound:
+      except :
         continue
 
 def addHomeStatus(email, myLoc):
