@@ -32,7 +32,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def data_preprocessor(path):
     # Reading data from file
     dat=pd.read_excel(path)
-    dat=dat.iloc[:15,]
+    dat=dat.iloc[:500,]
     # remove unnecessary cols
     names=dat['Aadhaar'].values
     mobs=dat['Mobile']
