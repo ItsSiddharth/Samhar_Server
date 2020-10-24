@@ -19,15 +19,18 @@ import firebase_admin
 from firebase_admin import credentials
 from checkpost import *
 import os
+import pickle
 
 
 UPLOAD_FOLDER = 'assets'
 ALLOWED_EXTENSIONS = {'xlsx'}
+Pkl_Filename = "assets/RandomForest_Model1.pkl"
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
+with open(Pkl_Filename, 'rb') as file:
+    Random_forest_Model = pickle.load(file)
 
 def data_preprocessor(path):
     # Reading data from file
@@ -162,6 +165,13 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return render_template('upload.html')
     return render_template('index.html')
+
+@app.route('/predict', methods=["GET", "POST"])
+def infer_model():
+    model_in = request.get_json()
+    model_in = model_in["inputs"]
+    Y = Random_forest_Model.predict([model_in])
+    return {"output": str(Y[0])}
 
 
 if __name__ == "__main__":
