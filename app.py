@@ -27,6 +27,7 @@ ALLOWED_EXTENSIONS = {'xlsx'}
 Pkl_Filename = "assets/RandomForest_Model1.pkl"
 
 app = Flask(__name__)
+CORS(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 with open(Pkl_Filename, 'rb') as file:
