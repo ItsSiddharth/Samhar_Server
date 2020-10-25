@@ -13,7 +13,7 @@ from sklearn.pipeline import make_pipeline
 import json
 from sklearn.model_selection import train_test_split
 from flask import Flask, flash, request, redirect, url_for, jsonify, render_template
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 from google.cloud.exceptions import NotFound
 import firebase_admin
@@ -169,6 +169,7 @@ def upload_file():
     return render_template('index.html')
 
 @app.route('/predict', methods=["GET", "POST"])
+@cross_origin()
 def infer_model():
     model_in = request.get_json()
     model_in = model_in["inputs"]
