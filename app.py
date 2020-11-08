@@ -78,6 +78,17 @@ def data_preprocessor(path):
         X=X.reshape(1,-1)
     return([X, names, mobs, email])
 
+def data_preprocess_for_inference(X):
+    # PCA
+    pca_reload = pickle.load(open("assets/pca.pkl",'rb'))
+    result_new = pca_reload.transform(np.array([[k for k in X[9:]]]))
+    principaldf=pd.DataFrame(data = result_new, columns = ['pc1', 'pc2','pc3','pc4','pc5','pc6'])
+    X=principaldf.values
+    # For single sample inference
+    if(X.shape[0]==1):
+        X=X.reshape(1,-1)
+    return([X, 'placeholder', 'placeholder', 'placeholder'])
+
 
 def inference(X,names,mobs,email,model): 
     clf = joblib.load(model)
@@ -96,6 +107,13 @@ def inference(X,names,mobs,email,model):
     ret_json= json.dumps(ret_dict)
     ret1=tuple(zip(email,y_labels))
     return([ret1,ret_json])
+
+def inference_for_heroku(X,names,mobs,email,model): 
+    clf = joblib.load(model)
+    y=clf.predict(X)
+    values = ['High', 'Low', 'Mid']
+    y_labels= [values[i] for i in y]
+    return(y_labels)
 
 def qrgen(uid, mob, health_flag):
    ret_dict={uid:[mob,health_flag]}
@@ -134,7 +152,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 app = Flask("__app__")
-
+# , 0, 0, 0, 0, 0, 0, 0, 0, 0
 @app.route('/main', methods=['GET'])
 def main():
     (X,names, mobs, email)=data_preprocessor(r"assets/Main.xlsx")
@@ -173,8 +191,10 @@ def upload_file():
 def infer_model():
     model_in = request.get_json()
     model_in = model_in["inputs"]
-    Y = Random_forest_Model.predict([model_in])
-    return {"output": str(Y[0])}
+    (X,names, mobs, email) = data_preprocess_for_inference(model_in)
+    output=inference_for_heroku(X,names, mobs, email, r"assets/model_sar.pkl")
+    # Y = Random_forest_Model.predict([model_in])
+    return {"output": output}
 
 
 if __name__ == "__main__":
