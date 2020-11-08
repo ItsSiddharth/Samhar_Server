@@ -111,7 +111,7 @@ def inference(X,names,mobs,email,model):
 def inference_for_heroku(X,names,mobs,email,model): 
     clf = joblib.load(model)
     y=clf.predict(X)
-    return(y)
+    return(str(y[0]))
 
 def qrgen(uid, mob, health_flag):
    ret_dict={uid:[mob,health_flag]}
