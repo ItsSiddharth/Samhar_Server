@@ -29,7 +29,7 @@ msgpack==1.0.0
 numpy==1.18.4
 opencage==1.2.1
 pandas==1.0.3
-protobuf==3.12.1
+protobuf==3.15.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
